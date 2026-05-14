@@ -42,18 +42,30 @@ final class CoinGeckoService
 
     private function mockData(): array
     {
-        $coins = [
-            ['id' => 'bitcoin', 'symbol' => 'btc', 'name' => 'Bitcoin', 'price' => 68820],
-            ['id' => 'ethereum', 'symbol' => 'eth', 'name' => 'Ethereum', 'price' => 3410],
-            ['id' => 'solana', 'symbol' => 'sol', 'name' => 'Solana', 'price' => 168],
+        $requestedIds = explode(',', $this->coins);
+        
+        $basePrices = [
+            'bitcoin' => 65000,
+            'ethereum' => 3500,
+            'solana' => 150,
+            'binancecoin' => 580,
+            'ripple' => 0.5,
+            'cardano' => 0.45,
+            'dogecoin' => 0.15,
+            'tron' => 0.12,
+            'chainlink' => 15,
+            'avalanche-2' => 35
         ];
 
-        return array_map(static function (array $c): array {
+        return array_map(static function (string $id) use ($basePrices): array {
+            $id = trim($id);
+            $price = $basePrices[$id] ?? mt_rand(10, 1000);
+            
             return [
-                'id' => $c['id'],
-                'symbol' => $c['symbol'],
-                'name' => $c['name'],
-                'current_price' => $c['price'] + mt_rand(-80, 120),
+                'id' => $id,
+                'symbol' => substr($id, 0, 4),
+                'name' => ucfirst($id),
+                'current_price' => $price + (mt_rand(-500, 500) / 100),
                 'market_cap' => mt_rand(8, 1400) * 1000000000,
                 'total_volume' => mt_rand(1, 120) * 100000000,
                 'price_change_percentage_1h_in_currency' => mt_rand(-220, 220) / 100,
@@ -61,6 +73,6 @@ final class CoinGeckoService
                 'price_change_percentage_7d_in_currency' => mt_rand(-1300, 1300) / 100,
                 'sparkline_in_7d' => ['price' => array_map(static fn() => mt_rand(2000, 12000) / 100, range(1, 30))],
             ];
-        }, $coins);
+        }, $requestedIds);
     }
 }
